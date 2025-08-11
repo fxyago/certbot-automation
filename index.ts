@@ -4,7 +4,7 @@ import type {
   ChangeStreamInsertDocument,
   ChangeStreamUpdateDocument,
 } from "mongodb";
-import { runAzureSync } from "./src/azcopy";
+import { copyFromAzure, copyToAzure, runAzureSync } from "./src/azcopy";
 import { getCertificate } from "./src/certbot";
 import { watchCollection } from "./src/mongodb";
 import type { CustomDomainSchema } from "./src/types";
@@ -60,6 +60,15 @@ const onUpdate = (change: ChangeStreamUpdateDocument<CustomDomainSchema>) => {
 const onDelete = (documentKey: ChangeStreamDocumentKey<CustomDomainSchema>) => {
   console.log("Deletado documento: ", documentKey);
 };
+
+const sync = async () => {
+  await copyFromAzure();
+  await copyCertsFromLetsEncryptLive();
+  await copyToAzure();
+};
+
+await sync();
+setInterval(sync, 1000 * 60 * 15);
 
 watchCollection({
   onInsert,
