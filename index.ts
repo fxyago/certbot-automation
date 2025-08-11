@@ -4,30 +4,40 @@ import type {
   ChangeStreamInsertDocument,
   ChangeStreamUpdateDocument,
 } from "mongodb";
+import { runAzureSync } from "./src/azcopy";
 import { getCertificate } from "./src/certbot";
 import { watchCollection } from "./src/mongodb";
 import type { CustomDomainSchema } from "./src/types";
-import { copyCertificate, runAzureSync } from "./src/utils";
+import { copyCertsFromLetsEncryptLive, createConfFile } from "./src/utils";
 
 const onInsert = async (
   change: ChangeStreamInsertDocument<CustomDomainSchema>
 ) => {
   console.log("Inserido documento: ", change);
-  const insertedDocumentId = change.fullDocument?._id;
+  const document = change.fullDocument;
+  const insertedDocumentId = document?._id;
   if (insertedDocumentId) {
-    const { certPath, keyPath } = await getCertificate({
-      domain: change.fullDocument.Domain,
-      name: change.fullDocument.TenantDomain,
+    console.log(
+      "Novo domínio inserido, gerando certificado e criando configuração..."
+    );
+
+    await getCertificate({
+      domain: document.Domain,
+      name: document.TenantDomain,
       folder: env.NODE_ENV,
     });
 
-    copyCertificate({
-      certPath,
-      keyPath,
-      destination: change.fullDocument.TenantId,
+    await copyCertsFromLetsEncryptLive();
+
+    await createConfFile({
+      name: document.TenantDomain,
+      domain: document.Domain,
     });
 
-    runAzureSync();
+    await runAzureSync();
+    console.log(
+      "Novo domínio inserido, gerando certificado e criando configuração..."
+    );
   }
 };
 

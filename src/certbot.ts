@@ -42,9 +42,11 @@ export const getCertificate = async ({
   if (output.exitCode !== 0) {
     throw new Error(`Erro ao executar o comando: ${output.stdout}`);
   }
+};
 
-  return {
-    certPath: `/etc/letsencrypt/live/${name}/fullchain.pem`,
-    keyPath: `/etc/letsencrypt/live/${name}/privkey.pem`,
-  };
+export const renewCertificates = async () => {
+  return spawn({
+    cmd: ["certbot", "renew"],
+    stdout: "pipe",
+  });
 };

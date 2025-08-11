@@ -1,50 +1,49 @@
-import { env, spawn } from "bun";
+import { file, spawn } from "bun";
+import { copyFromAzure, copyToAzure } from "./azcopy";
+import { AZURE_BLOB_NGINX_CERT_DIRECTORY } from "./constants";
 
-type CopyCertificateParams = {
-  certPath: string;
-  keyPath: string;
-  destination: string;
-};
+export const copyCertsFromLetsEncryptLive = async () => {
+  const copyCommand = `cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
 
-export const copyCertificate = async ({
-  certPath,
-  keyPath,
-  destination,
-}: CopyCertificateParams) => {
-  try {
-    await spawn({
-      cmd: ["ln", "-s", `${destination}`, certPath],
-      stdout: "pipe",
-    }).exited;
-    console.log("Criado link simbólico para o certificado");
-
-    await spawn({
-      cmd: ["ln", "-s", `${destination}`, keyPath],
-      stdout: "pipe",
-    }).exited;
-    console.log("Criado link simbólico para a chave do certificado");
-  } catch (error) {
-    console.error("Erro em criação de symlinks: ", error);
-  }
-};
-
-export const runAzureSync = async () => {
-  const subprocess = spawn({
-    cmd: [
-      "azcopy",
-      "sync",
-      `${env.AZCOPY_ROOT_FOLDER ?? "/etc/azcopy-root"}/${env.NODE_ENV}`,
-      "https://storage.azure.com/ellevo-next-staging-storage",
-    ],
+  const copyProcess = spawn({
+    cmd: copyCommand.split(" "),
     stdout: "pipe",
   });
-  await subprocess.exited;
-  const output = {
-    stdout: await subprocess.stdout.text(),
-    exitCode: subprocess.exitCode,
+
+  await copyProcess.exited;
+
+  if (copyProcess.exitCode !== 0)
+    throw new Error(`Erro ao copiar os certificados: ${copyProcess.stdout}`);
+};
+
+export const createConfFile = async ({
+  name,
+  domain,
+}: {
+  name: string;
+  domain: string;
+}) => {
+  const confFileTemplate = file("./nginx-templates/default.conf");
+  let confText = await confFileTemplate.text();
+
+  confText = confText.replaceAll("%SERVER_NAME%", domain);
+  confText = confText.replaceAll(
+    "%CERTIFICATE_PATH%",
+    `../certificates/${name}/fullchain.pem`
+  );
+  confText = confText.replaceAll(
+    "%CERTIFICATE_KEY_PATH%",
+    `../certificates/${name}/privkey.pem`
+  );
+};
+
+export const syncAzureWithLocal = async () => {
+  const sync = async () => {
+    await copyFromAzure();
+    await copyCertsFromLetsEncryptLive();
+    await copyToAzure();
   };
-  if (output.exitCode !== 0) {
-    throw new Error(`Erro ao executar o comando: ${output.stdout}`);
-  }
-  console.log("Sync finalizado com sucesso");
+
+  await sync();
+  setInterval(sync, 1000 * 60 * 15);
 };
