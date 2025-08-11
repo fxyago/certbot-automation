@@ -3,7 +3,7 @@ import { copyFromAzure, copyToAzure } from "./azcopy";
 import { AZURE_BLOB_NGINX_CERT_DIRECTORY } from "./constants";
 
 export const copyCertsFromLetsEncryptLive = async () => {
-  const copyCommand = `cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
+  const copyCommand = `sh -c "cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}"`;
 
   const copyProcess = spawn({
     cmd: copyCommand.split(" "),
@@ -12,8 +12,10 @@ export const copyCertsFromLetsEncryptLive = async () => {
 
   await copyProcess.exited;
 
-  if (copyProcess.exitCode !== 0)
-    throw new Error(`Erro ao copiar os certificados: ${copyProcess.stdout}`);
+  if (copyProcess.exitCode === 0) return;
+
+  const output = await copyProcess.stdout.text();
+  throw new Error(`Erro ao copiar os certificados: ${output}`);
 };
 
 export const createConfFile = async ({
