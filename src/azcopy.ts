@@ -1,8 +1,15 @@
 import { env, spawn } from "bun";
-import { AZURE_BLOB_DIRECTORY } from "./constants";
+
+export const azureStorageWithPath = (path: string = "/") => {
+  return `${env.AZCOPY_SAS_URI}${path}?${env.AZCOPY_SAS_TOKEN}`;
+};
+
+export const localStorageWithPath = (path: string = "/") => {
+  return `${env.AZCOPY_LOCAL_FOLDER}${path}`;
+};
 
 export const runAzureSync = async () => {
-  const syncCommand = `azcopy sync ${AZURE_BLOB_DIRECTORY} ${env.AZCOPY_SAS_URI} --recursive`;
+  const syncCommand = `azcopy sync ${localStorageWithPath()} ${azureStorageWithPath()} --recursive`;
   const subprocess = spawn({
     cmd: syncCommand.split(" "),
     stdout: "pipe",
@@ -19,7 +26,9 @@ export const runAzureSync = async () => {
 };
 
 export const copyToAzure = async () => {
-  const copyCommand = `azcopy copy ${AZURE_BLOB_DIRECTORY} ${env.AZCOPY_SAS_URI} --recursive`;
+  const copyCommand = `azcopy copy ${localStorageWithPath(
+    "/*"
+  )} ${azureStorageWithPath()} --recursive`;
   return spawn({
     cmd: copyCommand.split(" "),
     stdout: "pipe",
@@ -27,7 +36,9 @@ export const copyToAzure = async () => {
 };
 
 export const copyFromAzure = async () => {
-  const copyCommand = `azcopy copy ${env.AZCOPY_SAS_URI} ${AZURE_BLOB_DIRECTORY} --recursive`;
+  const copyCommand = `azcopy copy ${azureStorageWithPath(
+    "/*"
+  )} ${localStorageWithPath()} --recursive`;
   return spawn({
     cmd: copyCommand.split(" "),
     stdout: "pipe",

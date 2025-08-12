@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
-    AZCOPY_ROOT_FOLDER?: string;
+    AZCOPY_LOCAL_FOLDER?: string;
+    AZCOPY_SAS_TOKEN: string;
     AZCOPY_SAS_URI: string;
     MONGODB_URI: string;
     MONGODB_DB: string;

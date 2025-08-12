@@ -7,6 +7,7 @@ Tecnologias utilizadas:
 - MongoDB
 - Azure Blob Storage
 - Bash
+- Docker
 
 ## Descrição
 A automação funciona da seguinte forma:
@@ -47,8 +48,9 @@ services:
       - MONGODB_COLLECTION=domains
       - MONGODB_USERNAME=certbot-automation
       - MONGODB_PASSWORD=certbot-automation
-      - AZCOPY_ROOT_FOLDER=/etc/azure-storage
-      - AZCOPY_SAS_URI=https://storage.azure.com/project-name-staging-storage?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacup&se=2023-11-02T00:00:00Z&st=2023-10-31T23:59:59Z&spr=https&sig=xxxx
+      - AZCOPY_LOCAL_FOLDER=/etc/azure-storage
+      - AZCOPY_SAS_URI=https://storage.azure.com/project-name-staging-storage
+      - AZCOPY_SAS_TOKEN=sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacup&se=2023-11-02T00:00:00Z&st=2023-10-31T23:59:59Z&spr=https&sig=xxxx
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /etc/azure-storage:/etc/azure-storage
@@ -65,5 +67,6 @@ Tabela de variáveis de ambiente:
 | MONGODB_COLLECTION | domains | Nome da collection |
 | MONGODB_USERNAME | certbot-automation | Nome do usuário |
 | MONGODB_PASSWORD | certbot-automation | Senha do usuário |
-| AZCOPY_ROOT_FOLDER | /etc/azure-storage | Caminho raiz do Azure Blob Storage, onde serão salvos os arquivos de configuração |
-| AZCOPY_SAS_URI | https://storage.azure.com/project-name-staging-storage?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacup&se=2023-11-02T00:00:00Z&st=2023-10-31T23:59:59Z&spr=https&sig=xxxx| URI do Azure Blob Storage com o token SAS |
+| AZCOPY_LOCAL_FOLDER | /etc/azure-storage | Caminho local do Azure Blob Storage, onde serão salvos os arquivos de configuração |
+| AZCOPY_SAS_URI | https://storage.azure.com/project-name-staging-storage| URI do Azure Blob Storage |
+| AZCOPY_SAS_TOKEN | sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacup&se=2023-11-02T00:00:00Z&st=2023-10-31T23:59:59Z&spr=https&sig=xxxx| SAS token do Azure Blob Storage |
