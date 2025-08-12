@@ -21,7 +21,7 @@ export const createDirs = async () => {
 };
 
 export const copyCertsFromLetsEncryptLive = async () => {
-  const copyCommand = `sh -c 'cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}'`;
+  const copyCommand = `sh -c cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
 
   const copyProcess = spawn({
     cmd: copyCommand.split(" "),
