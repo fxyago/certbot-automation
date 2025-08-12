@@ -3,32 +3,17 @@ import { spawn } from "bun";
 type GetCertificateParams = {
   domain: string;
   name: string;
-  folder: string;
   email?: string;
 };
 
 export const getCertificate = async ({
   domain,
   name,
-  folder,
   email = "suporte@cloudworks.com.br",
 }: GetCertificateParams) => {
+  const certbotCommand = `certbot certonly --agree-tos --non-interactive --webroot --webroot-path /etc/letsencrypt/ --email ${email} --cert-name ${name} -d ${domain}`;
   const subprocess = spawn({
-    cmd: [
-      "certbot",
-      "certonly",
-      "--agree-tos",
-      "--non-interactive",
-      "--webroot",
-      "--webroot-path",
-      `/etc/letsencrypt/${folder}`,
-      "-m",
-      email,
-      "--cert-name",
-      name,
-      "-d",
-      domain,
-    ],
+    cmd: certbotCommand.split(" "),
     stdout: "pipe",
   });
 
@@ -45,8 +30,9 @@ export const getCertificate = async ({
 };
 
 export const renewCertificates = async () => {
+  const renewCommand = "certbot renew";
   return spawn({
-    cmd: ["certbot", "renew"],
+    cmd: renewCommand.split(" "),
     stdout: "pipe",
   });
 };

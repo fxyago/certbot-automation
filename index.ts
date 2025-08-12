@@ -1,4 +1,3 @@
-import { env } from "bun";
 import type {
   ChangeStreamDocumentKey,
   ChangeStreamInsertDocument,
@@ -28,7 +27,6 @@ const onInsert = async (
     await getCertificate({
       domain: document.Domain,
       name: document.TenantDomain,
-      folder: env.NODE_ENV,
     });
 
     await copyCertsFromLetsEncryptLive();
