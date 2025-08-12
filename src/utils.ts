@@ -1,13 +1,12 @@
 import { file, spawn } from "bun";
 import { copyFromAzure, copyToAzure } from "./azcopy";
 import {
+  AZURE_BLOB_DIRECTORY,
   AZURE_BLOB_NGINX_CERT_DIRECTORY,
-  AZURE_BLOB_NGINX_CONF_DIRECTORY,
-  AZURE_BLOB_NGINX_TEMPLATES_DIRECTORY,
 } from "./constants";
 
 export const createDirs = async () => {
-  const mkdirCommand = `mkdir -p  ${AZURE_BLOB_NGINX_CERT_DIRECTORY} ${AZURE_BLOB_NGINX_CONF_DIRECTORY} ${AZURE_BLOB_NGINX_TEMPLATES_DIRECTORY}`;
+  const mkdirCommand = `mkdir -p ${AZURE_BLOB_DIRECTORY}`;
   const mkdirProcess = spawn({
     cmd: mkdirCommand.split(" "),
     stdout: "pipe",
