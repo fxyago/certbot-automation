@@ -1,9 +1,28 @@
 import { file, spawn } from "bun";
 import { copyFromAzure, copyToAzure } from "./azcopy";
-import { AZURE_BLOB_NGINX_CERT_DIRECTORY } from "./constants";
+import {
+  AZURE_BLOB_NGINX_CERT_DIRECTORY,
+  AZURE_BLOB_NGINX_CONF_DIRECTORY,
+  AZURE_BLOB_NGINX_TEMPLATES_DIRECTORY,
+} from "./constants";
+
+export const createDirs = async () => {
+  const mkdirCommand = `mkdir -p  ${AZURE_BLOB_NGINX_CERT_DIRECTORY} ${AZURE_BLOB_NGINX_CONF_DIRECTORY} ${AZURE_BLOB_NGINX_TEMPLATES_DIRECTORY}`;
+  const mkdirProcess = spawn({
+    cmd: mkdirCommand.split(" "),
+    stdout: "pipe",
+  });
+
+  await mkdirProcess.exited;
+
+  if (mkdirProcess.exitCode === 0) return;
+
+  const output = await mkdirProcess.stdout.text();
+  throw new Error(`Erro ao criar diretórios: ${output}`);
+};
 
 export const copyCertsFromLetsEncryptLive = async () => {
-  const copyCommand = `sh -c cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
+  const copyCommand = `sh -c 'cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}'`;
 
   const copyProcess = spawn({
     cmd: copyCommand.split(" "),

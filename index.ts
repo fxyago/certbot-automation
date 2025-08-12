@@ -8,7 +8,11 @@ import { copyFromAzure, copyToAzure, runAzureSync } from "./src/azcopy";
 import { getCertificate } from "./src/certbot";
 import { watchCollection } from "./src/mongodb";
 import type { CustomDomainSchema } from "./src/types";
-import { copyCertsFromLetsEncryptLive, createConfFile } from "./src/utils";
+import {
+  copyCertsFromLetsEncryptLive,
+  createConfFile,
+  createDirs,
+} from "./src/utils";
 
 const onInsert = async (
   change: ChangeStreamInsertDocument<CustomDomainSchema>
@@ -67,6 +71,7 @@ const sync = async () => {
   await copyToAzure();
 };
 
+await createDirs();
 await sync();
 setInterval(sync, 1000 * 60 * 15);
 
