@@ -2,7 +2,9 @@ import { env, spawn } from "bun";
 import { log } from "./logging";
 
 export const azureStorageWithPath = (path: string = "") => {
-  return `${env.AZCOPY_SAS_URI}${path}?${env.AZCOPY_SAS_TOKEN}`;
+  return `${env.AZCOPY_SAS_URI}${path}?${decodeURIComponent(
+    env.AZCOPY_SAS_TOKEN
+  )}`;
 };
 
 export const localStorageWithPath = (path: string = "") => {
