@@ -1,5 +1,5 @@
 {
-  "name": "ellevo-next-cert-automation",
+  "name": "cert-automation",
   "module": "index.ts",
   "type": "module",
   "private": true,
