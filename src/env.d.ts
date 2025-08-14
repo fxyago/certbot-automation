@@ -10,5 +10,6 @@ declare namespace NodeJS {
     MONGODB_PASSWORD: string;
     MONGODB_URI_PARAMS?: string;
     NODE_ENV: "development" | "staging" | "production";
+    LOG_LEVEL?: "fatal" | "error" | "warn" | "info" | "debug" | "trace";
   }
 }

@@ -3,42 +3,46 @@ import type {
   ChangeStreamInsertDocument,
   ChangeStreamUpdateDocument,
 } from "mongodb";
-import { copyFromAzure, copyToAzure, runAzureSync } from "./src/azcopy";
+import { runAzureSync } from "./src/azcopy";
 import { getCertificate } from "./src/certbot";
+import { log } from "./src/logging";
 import { watchCollection } from "./src/mongodb";
 import type { CustomDomainSchema } from "./src/types";
 import {
   copyCertsFromLetsEncryptLive,
   createConfFile,
-  createDirs,
+  syncAzureWithLocal,
 } from "./src/utils";
 
 const onInsert = async (
   change: ChangeStreamInsertDocument<CustomDomainSchema>
 ) => {
-  console.log("Inserido documento: ", change);
+  log.debug(`Inserido documento: ${change}`);
   const document = change.fullDocument;
   const insertedDocumentId = document?._id;
   if (insertedDocumentId) {
-    console.log(
-      "Novo domínio inserido, gerando certificado e criando configuração..."
-    );
+    log.info("Novo domínio inserido, iniciando automação de configurações...");
 
+    log.trace(`Gerando novo certificado para domínio: "${document.Domain}"`);
     await getCertificate({
       domain: document.Domain,
       name: document.TenantDomain,
     });
 
+    log.trace(`Copiando certificados gerados para a pasta local Azure...`);
     await copyCertsFromLetsEncryptLive();
 
+    log.trace(`Criando arquivo de configuração Nginx...`);
     await createConfFile({
       name: document.TenantDomain,
       domain: document.Domain,
     });
 
+    log.trace(`Iniciando sincronização de diretório local com Azure...`);
     await runAzureSync();
-    console.log(
-      "Novo domínio inserido, gerando certificado e criando configuração..."
+
+    log.trace(
+      `Automação finalizada! Aguardando por mais alterações em collection`
     );
   }
 };
@@ -46,32 +50,23 @@ const onInsert = async (
 const onUpdate = (change: ChangeStreamUpdateDocument<CustomDomainSchema>) => {
   const updatedDocumentId = change.documentKey?._id;
   if (updatedDocumentId) {
-    console.log(`Documento com ID ${updatedDocumentId} atualizado`);
+    log.info(`Documento com ID ${updatedDocumentId} atualizado`);
     if (change.updateDescription) {
-      console.log(
-        "Campos atualizados:",
-        change.updateDescription.updatedFields
+      log.debug(
+        `Campos atualizados: ${change.updateDescription.updatedFields}`
       );
-      console.log("Campos removidos:", change.updateDescription.removedFields);
+      log.debug(`Campos removidos: ${change.updateDescription.removedFields}`);
     } else {
-      console.log("Nenhuma descrição de atualização fornecida");
+      log.debug("Nenhuma descrição de atualização fornecida");
     }
   }
 };
 
 const onDelete = (documentKey: ChangeStreamDocumentKey<CustomDomainSchema>) => {
-  console.log("Deletado documento: ", documentKey);
+  log.info(`Deletado documento: ${documentKey}`);
 };
 
-const sync = async () => {
-  await copyFromAzure();
-  await copyCertsFromLetsEncryptLive();
-  await copyToAzure();
-};
-
-await createDirs();
-await sync();
-setInterval(sync, 1000 * 60 * 15);
+syncAzureWithLocal();
 
 watchCollection({
   onInsert,
