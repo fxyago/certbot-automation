@@ -1,4 +1,4 @@
-import { file, spawn } from "bun";
+import { file, fileURLToPath, spawn } from "bun";
 import { copyFromAzure, copyToAzure } from "./azcopy";
 import {
   AZURE_BLOB_DIRECTORY,
@@ -54,7 +54,9 @@ export const createConfFile = async ({
   name: string;
   domain: string;
 }) => {
-  const templatePath = import.meta.resolve("./nginx-templates/default.conf");
+  const templatePath = fileURLToPath(
+    import.meta.resolve("./nginx-templates/default.conf")
+  );
   const confFileTemplate = file(templatePath);
 
   log.trace("Criando configuração Nginx para o domínio");
