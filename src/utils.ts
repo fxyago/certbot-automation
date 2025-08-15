@@ -20,6 +20,7 @@ export const createDirs = async () => {
   await mkdirProcess.exited;
 
   if (mkdirProcess.exitCode === 0) {
+    log.trace(`Output: ${await mkdirProcess.stdout.text()}`);
     log.debug(`Diretório criado: ${AZURE_BLOB_DIRECTORY}`);
     return;
   }
@@ -28,18 +29,19 @@ export const createDirs = async () => {
 };
 
 export const copyCertsFromLetsEncryptLive = async () => {
-  const copyCommand = `sh -c cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
+  const copyCommand = `sh -c "cd /etc/letsencrypt/live/ && mkdir -p ${AZURE_BLOB_NGINX_CERT_DIRECTORY} && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}"`;
 
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
   log.trace(`Comando: ${copyCommand}`);
   const copyProcess = spawn({
-    cmd: copyCommand.split(" "),
+    cmd: [copyCommand],
     stdout: "pipe",
   });
 
   await copyProcess.exited;
 
   if (copyProcess.exitCode === 0) {
+    log.trace(`Output: ${await copyProcess.stdout.text()}`);
     log.debug(`Certificados copiados para a pasta local Azure`);
     return;
   }

@@ -1,4 +1,5 @@
 import { env, spawn } from "bun";
+import { AZURE_BLOB_DIRECTORY } from "./constants";
 import { log } from "./logging";
 
 export const azureStorageWithPath = (path: string = "") => {
@@ -6,7 +7,7 @@ export const azureStorageWithPath = (path: string = "") => {
 };
 
 export const localStorageWithPath = (path: string = "") => {
-  return `${env.AZCOPY_LOCAL_FOLDER}${path}`;
+  return `${AZURE_BLOB_DIRECTORY}${path}`;
 };
 
 export const runAzureSync = async () => {
