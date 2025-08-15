@@ -11,10 +11,12 @@ export const localStorageWithPath = (path: string = "") => {
 };
 
 export const runAzureSync = async () => {
-  const syncCommand = `azcopy sync ${localStorageWithPath()} ${azureStorageWithPath()} --recursive`;
+  const syncCommand = `azcopy sync ${localStorageWithPath(
+    "/nginx"
+  )} ${azureStorageWithPath()} --recursive`;
 
   log.trace("Iniciando sincronização de diretório local com Azure");
-  log.trace(`Local: ${localStorageWithPath()}`);
+  log.trace(`Local: ${localStorageWithPath("/nginx")}`);
   log.trace(`Azure: ${azureStorageWithPath()}`);
   log.trace(`Comando: ${syncCommand}`);
   log.trace("-".repeat(16));
