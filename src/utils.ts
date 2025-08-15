@@ -30,23 +30,15 @@ export const createDir = async (dir: string) => {
 
 export const copyCertsFromLetsEncryptLive = async () => {
   await createDir(AZURE_BLOB_NGINX_CERT_DIRECTORY);
-  await createDir("/etc/scripts");
 
   const copyCommand = `cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
   await write(
     file("/etc/scripts/move-certs.sh"),
-    "#!/bin/bash\n" + copyCommand
+    "#!/bin/bash\n" + copyCommand,
+    {
+      mode: 755,
+    }
   );
-
-  const chmodCommand = `chmod +x /etc/scripts/move-certs.sh`;
-  log.trace(`Comando: ${chmodCommand}`);
-  const chmodProcess = spawn({
-    cmd: chmodCommand.split(" "),
-    stdout: "pipe",
-  });
-
-  await chmodProcess.exited;
-  log.trace(`Chmod Output: ${await chmodProcess.stdout.text()}`);
 
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
   log.trace(`Comando: ${copyCommand}`);
