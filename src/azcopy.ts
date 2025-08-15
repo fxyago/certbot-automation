@@ -11,12 +11,10 @@ export const localStorageWithPath = (path: string = "") => {
 };
 
 export const runAzureSync = async () => {
-  const syncCommand = `azcopy sync ${localStorageWithPath(
-    "/nginx"
-  )} ${azureStorageWithPath()} --recursive`;
+  const syncCommand = `azcopy sync ${localStorageWithPath()} ${azureStorageWithPath()} --recursive`;
 
   log.trace("Iniciando sincronização de diretório local com Azure");
-  log.trace(`Local: ${localStorageWithPath("/nginx")}`);
+  log.trace(`Local: ${localStorageWithPath()}`);
   log.trace(`Azure: ${azureStorageWithPath()}`);
   log.trace(`Comando: ${syncCommand}`);
   log.trace("-".repeat(16));
@@ -38,11 +36,11 @@ export const runAzureSync = async () => {
 export const copyToAzure = async () => {
   const copyCommand = `azcopy copy ${localStorageWithPath(
     "/*"
-  )} ${azureStorageWithPath("/")} --recursive`;
+  )} ${azureStorageWithPath("/.")} --recursive`;
 
   log.trace("Iniciando copy de diretório local para Azure");
-  log.trace(`Local: ${localStorageWithPath("/")}`);
-  log.trace(`Azure: ${azureStorageWithPath("/")}`);
+  log.trace(`Local: ${localStorageWithPath("/*")}`);
+  log.trace(`Azure: ${azureStorageWithPath("/.")}`);
   log.trace(`Comando: ${copyCommand}`);
   log.trace("-".repeat(16));
 
@@ -65,11 +63,11 @@ export const copyToAzure = async () => {
 export const copyFromAzure = async () => {
   const copyCommand = `azcopy copy ${azureStorageWithPath(
     "/*"
-  )} ${localStorageWithPath("/")} --recursive`;
+  )} ${localStorageWithPath("/.")} --recursive`;
 
   log.trace("Iniciando copy de Azure para diretório local");
-  log.trace(`Azure: ${azureStorageWithPath("/")}`);
-  log.trace(`Local: ${localStorageWithPath("/")}`);
+  log.trace(`Azure: ${azureStorageWithPath("/*")}`);
+  log.trace(`Local: ${localStorageWithPath("/.")}`);
   log.trace(`Comando: ${copyCommand}`);
   log.trace("-".repeat(16));
 
