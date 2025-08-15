@@ -2,8 +2,8 @@ import { file, spawn } from "bun";
 import { copyFromAzure, copyToAzure } from "./azcopy";
 import {
   AZURE_BLOB_DIRECTORY,
-  AZURE_BLOB_NGINX_CERT_DIRECTORY,
-  AZURE_BLOB_NGINX_CONF_DIRECTORY,
+  AZURE_BLOB_CERT_DIRECTORY,
+  AZURE_BLOB_CONF_DIRECTORY,
   NGINX_TEMPLATE,
 } from "./constants";
 import { log } from "./logging";
@@ -29,9 +29,9 @@ export const createDir = async (dir: string) => {
 };
 
 export const copyCertsFromLetsEncryptLive = async () => {
-  await createDir(AZURE_BLOB_NGINX_CERT_DIRECTORY);
+  await createDir(AZURE_BLOB_CERT_DIRECTORY);
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
-  const copyCommand = `/etc/scripts/move-certs.sh ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
+  const copyCommand = `/etc/scripts/move-certs.sh ${AZURE_BLOB_CERT_DIRECTORY}`;
   log.trace(`Comando: ${copyCommand}`);
   const copyProcess = spawn({
     cmd: copyCommand.split(" "),
@@ -77,7 +77,7 @@ export const createConfFile = async ({
     `../certificates/${name}/privkey.pem`
   );
 
-  const confFilePath = `${AZURE_BLOB_NGINX_CONF_DIRECTORY}/${name}.conf`;
+  const confFilePath = `${AZURE_BLOB_CONF_DIRECTORY}/${name}.conf`;
   try {
     await file(confFilePath).write(confText);
     log.debug("Arquivo de configuração Nginx criado");

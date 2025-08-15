@@ -4,9 +4,9 @@ export const AZURE_BLOB_DIRECTORY = `${
   env.AZCOPY_LOCAL_FOLDER ?? "/etc/azcopy-root"
 }/${env.NODE_ENV}`;
 
-export const AZURE_BLOB_NGINX_CERT_DIRECTORY = `${AZURE_BLOB_DIRECTORY}/nginx/certificates`;
-export const AZURE_BLOB_NGINX_CONF_DIRECTORY = `${AZURE_BLOB_DIRECTORY}/nginx/conf.d`;
-export const AZURE_BLOB_NGINX_TEMPLATES_DIRECTORY = `${AZURE_BLOB_DIRECTORY}/nginx/templates`;
+export const AZURE_BLOB_CERT_DIRECTORY = `${AZURE_BLOB_DIRECTORY}/certificates`;
+export const AZURE_BLOB_CONF_DIRECTORY = `${AZURE_BLOB_DIRECTORY}/conf.d`;
+export const AZURE_BLOB_TEMPLATES_DIRECTORY = `${AZURE_BLOB_DIRECTORY}/templates`;
 
 export const NGINX_TEMPLATE = `server {
   listen 443 ssl;
