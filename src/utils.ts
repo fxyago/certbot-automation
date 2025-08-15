@@ -55,7 +55,7 @@ export const createConfFile = async ({
   domain: string;
 }) => {
   const templatePath = fileURLToPath(
-    import.meta.resolve("./nginx-templates/default.conf")
+    import.meta.resolve("@nginx-templates/default.conf")
   );
   const confFileTemplate = file(templatePath);
 
