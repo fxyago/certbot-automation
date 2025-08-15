@@ -36,7 +36,7 @@ export const copyCertsFromLetsEncryptLive = async () => {
     file("/etc/scripts/move-certs.sh"),
     "#!/bin/bash\n" + copyCommand,
     {
-      mode: 755,
+      mode: 0o755,
     }
   );
 
