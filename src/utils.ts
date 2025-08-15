@@ -4,6 +4,7 @@ import {
   AZURE_BLOB_DIRECTORY,
   AZURE_BLOB_NGINX_CERT_DIRECTORY,
   AZURE_BLOB_NGINX_CONF_DIRECTORY,
+  NGINX_TEMPLATE,
 } from "./constants";
 import { log } from "./logging";
 
@@ -54,13 +55,8 @@ export const createConfFile = async ({
   name: string;
   domain: string;
 }) => {
-  const templatePath = "../../nginx-templates/default.conf";
-  const confFileTemplate = file(templatePath);
-
   log.trace("Criando configuração Nginx para o domínio");
-  log.trace(`Template path: ${templatePath}`);
-  let confText = await confFileTemplate.text();
-
+  let confText = NGINX_TEMPLATE;
   log.trace(`Substituindo dóminio em \`server_name\` para: "${domain}"`);
   confText = confText.replaceAll("%SERVER_NAME%", domain);
   log.trace(

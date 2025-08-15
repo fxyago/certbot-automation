@@ -10,7 +10,6 @@ COPY --from=azcopy /usr/local/bin/azcopy /usr/bin/azcopy
 FROM prerelease AS release
 COPY index.ts package.json bun.lock ./
 COPY src/ ./src/
-COPY nginx-templates/ ./nginx-templates/
 RUN bun install --frozen-lockfile --production
 
 VOLUME ["/etc/azure-storage"]
