@@ -1,4 +1,4 @@
-import { file, spawn, write } from "bun";
+import { file, spawn } from "bun";
 import { copyFromAzure, copyToAzure } from "./azcopy";
 import {
   AZURE_BLOB_DIRECTORY,
@@ -30,20 +30,11 @@ export const createDir = async (dir: string) => {
 
 export const copyCertsFromLetsEncryptLive = async () => {
   await createDir(AZURE_BLOB_NGINX_CERT_DIRECTORY);
-
-  const copyCommand = `cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
-  await write(
-    file("/etc/scripts/move-certs.sh"),
-    "#!/bin/bash\n" + copyCommand,
-    {
-      mode: 0o755,
-    }
-  );
-
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
+  const copyCommand = `/etc/scripts/move-certs.sh ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
   log.trace(`Comando: ${copyCommand}`);
   const copyProcess = spawn({
-    cmd: ["/etc/scripts/move-certs.sh"],
+    cmd: copyCommand.split(" "),
     cwd: "/etc/letsencrypt/live",
     stdout: "pipe",
   });
