@@ -8,9 +8,9 @@ import {
 } from "./constants";
 import { log } from "./logging";
 
-export const createDirs = async () => {
-  const mkdirCommand = `mkdir -p ${AZURE_BLOB_DIRECTORY}`;
-  log.debug(`Criando diretório: ${AZURE_BLOB_DIRECTORY}`);
+export const createDir = async (dir: string) => {
+  const mkdirCommand = `mkdir -p ${dir}`;
+  log.debug(`Criando diretório: ${dir}`);
   log.trace(`Comando: ${mkdirCommand}`);
   const mkdirProcess = spawn({
     cmd: mkdirCommand.split(" "),
@@ -21,19 +21,23 @@ export const createDirs = async () => {
 
   if (mkdirProcess.exitCode === 0) {
     log.trace(`Output: ${await mkdirProcess.stdout.text()}`);
-    log.debug(`Diretório criado: ${AZURE_BLOB_DIRECTORY}`);
+    log.debug(`Diretório criado: ${dir}`);
     return;
   }
   const output = await mkdirProcess.stdout.text();
-  throw new Error(`Erro ao criar diretórios: ${output}`);
+  throw new Error(`Erro ao criar diretório: ${output}`);
 };
 
 export const copyCertsFromLetsEncryptLive = async () => {
-  const copyCertCommand = `SOURCE_DIR="/etc/letsencrypt/live"; DEST_DIR="${AZURE_BLOB_NGINX_CERT_DIRECTORY}"; find "$SOURCE_DIR" -type l -exec sh -c 'mkdir -p "$3/$(dirname "\${2#\${1}/}")" && cp -L "$2" "$3/\${2#\${1}/}"' _ "$SOURCE_DIR" {} "$DEST_DIR" \;`;
+  await createDir(AZURE_BLOB_NGINX_CERT_DIRECTORY);
+
+  const copyCommand = `cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_NGINX_CERT_DIRECTORY}`;
+
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
-  log.trace(`Comando: sh -c ${copyCertCommand}`);
+  log.trace(`Comando: ${copyCommand}`);
   const copyProcess = spawn({
-    cmd: ["sh", "-c", copyCertCommand],
+    cmd: copyCommand.split(" "),
+    cwd: "/etc/letsencrypt/live",
     stdout: "pipe",
   });
 
@@ -85,7 +89,7 @@ export const createConfFile = async ({
 };
 
 export const syncAzureWithLocal = async () => {
-  await createDirs();
+  await createDir(AZURE_BLOB_DIRECTORY);
 
   const sync = async () => {
     await copyFromAzure();
