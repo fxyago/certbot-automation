@@ -24,7 +24,9 @@ export const copyCertsFromLetsEncryptLive = async () => {
   await createDir(AZURE_BLOB_CERT_DIRECTORY);
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
   const output =
-    await $`cd /etc/letsencrypt/live && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_CERT_DIRECTORY}`;
+    await $`cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_CERT_DIRECTORY}`.cwd(
+      "/etc/letsencrypt/live"
+    );
 
   if (output.exitCode === 0) {
     log.trace(output.text());
