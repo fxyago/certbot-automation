@@ -1,54 +1,38 @@
-import { file, spawn } from "bun";
+import { $, file } from "bun";
 import { copyFromAzure, copyToAzure } from "./azcopy";
 import {
-  AZURE_BLOB_DIRECTORY,
   AZURE_BLOB_CERT_DIRECTORY,
   AZURE_BLOB_CONF_DIRECTORY,
+  AZURE_BLOB_DIRECTORY,
   NGINX_TEMPLATE,
 } from "./constants";
 import { log } from "./logging";
 
 export const createDir = async (dir: string) => {
-  const mkdirCommand = `mkdir -p ${dir}`;
   log.debug(`Criando diretório: ${dir}`);
-  log.trace(`Comando: ${mkdirCommand}`);
-  const mkdirProcess = spawn({
-    cmd: mkdirCommand.split(" "),
-    stdout: "pipe",
-  });
+  const output = await $`mkdir -p ${dir}`;
 
-  await mkdirProcess.exited;
-
-  if (mkdirProcess.exitCode === 0) {
-    log.trace(`Output: ${await mkdirProcess.stdout.text()}`);
+  if (output.exitCode === 0) {
+    log.trace(output.text());
     log.debug(`Diretório criado: ${dir}`);
     return;
   }
-  const output = await mkdirProcess.stdout.text();
-  throw new Error(`Erro ao criar diretório: ${output}`);
+  throw new Error(`Erro ao criar diretório: ${output.text()}`);
 };
 
 export const copyCertsFromLetsEncryptLive = async () => {
   await createDir(AZURE_BLOB_CERT_DIRECTORY);
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
-  const copyCommand = `/etc/scripts/move-certs.sh ${AZURE_BLOB_CERT_DIRECTORY}`;
-  log.trace(`Comando: ${copyCommand}`);
-  const copyProcess = spawn({
-    cmd: copyCommand.split(" "),
-    cwd: "/etc/letsencrypt/live",
-    stdout: "pipe",
-  });
+  const output =
+    await $`cd /etc/letsencrypt/live && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_CERT_DIRECTORY}`;
 
-  await copyProcess.exited;
-
-  if (copyProcess.exitCode === 0) {
-    log.trace(`Copy Output: ${await copyProcess.stdout.text()}`);
+  if (output.exitCode === 0) {
+    log.trace(output.text());
     log.debug(`Certificados copiados para a pasta local Azure`);
     return;
   }
 
-  const output = await copyProcess.stdout.text();
-  throw new Error(`Erro ao copiar os certificados: ${output}`);
+  throw new Error(`Erro ao copiar os certificados: ${output.text()}`);
 };
 
 export const createConfFile = async ({

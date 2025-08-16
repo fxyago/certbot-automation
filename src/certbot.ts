@@ -1,4 +1,4 @@
-import { spawn } from "bun";
+import { $ } from "bun";
 import { log } from "./logging";
 
 type GetCertificateParams = {
@@ -12,41 +12,22 @@ export const getCertificate = async ({
   name,
   email = "suporte@cloudworks.com.br",
 }: GetCertificateParams) => {
-  const certbotCommand = `certbot certonly --agree-tos --non-interactive --webroot --webroot-path /etc/letsencrypt/ --email ${email} --cert-name ${name} -d ${domain}`;
   log.trace("Iniciando geração de certificado Let's Encrypt");
-  log.trace(`Comando: ${certbotCommand}`);
-  const subprocess = spawn({
-    cmd: certbotCommand.split(" "),
-    stdout: "pipe",
-  });
+  const certonly =
+    await $`certbot certonly --agree-tos --non-interactive --webroot --webroot-path /etc/letsencrypt/ --email ${email} --cert-name ${name} -d ${domain}`;
 
-  await subprocess.exited;
-
-  if (subprocess.exitCode !== 0) {
-    throw new Error(
-      `Erro ao executar o comando: ${await subprocess.stdout.text()}`
-    );
-  }
+  if (certonly.exitCode !== 0)
+    throw new Error(`Erro ao executar o comando: ${certonly.text()}`);
 
   log.debug("Geração de certificado finalizada com sucesso");
 };
 
 export const renewCertificates = async () => {
-  const renewCommand = "certbot renew";
   log.trace("Iniciando renovação de certificado Let's Encrypt");
-  log.trace(`Comando: ${renewCommand}`);
-  const subprocess = spawn({
-    cmd: renewCommand.split(" "),
-    stdout: "pipe",
-  });
+  const renew = await $`certbot renew`;
 
-  await subprocess.exited;
-
-  if (subprocess.exitCode !== 0) {
-    throw new Error(
-      `Erro ao executar o comando: ${await subprocess.stdout.text()}`
-    );
-  }
+  if (renew.exitCode !== 0)
+    throw new Error(`Erro ao executar o comando: ${renew.text()}`);
 
   log.debug("Renovação de certificado finalizada com sucesso");
 };
