@@ -4,9 +4,7 @@ WORKDIR /app
 FROM peterdavehello/azcopy:10.11.0 AS azcopy
 
 FROM base AS prerelease
-RUN apk add --no-cache certbot bash
-SHELL ["/bin/bash", "-c"]
-RUN chsh -s /bin/bash && shopt -s globstar
+RUN apk add --no-cache certbot
 COPY --from=azcopy /usr/local/bin/azcopy /usr/bin/azcopy
 
 FROM prerelease AS release
