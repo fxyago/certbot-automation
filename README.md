@@ -6,8 +6,9 @@ Tecnologias utilizadas:
 - Bun
 - MongoDB
 - Azure Blob Storage
-- Bash
+- Bun Shell
 - Docker
+- Pino (Logger)
 
 ## Descrição
 A automação funciona da seguinte forma:
@@ -26,7 +27,7 @@ A automação funciona da seguinte forma:
 
 ## Build do container
 
-```bash
+```sh
 docker build -t certbot-automation .
 ```
 
