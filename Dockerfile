@@ -4,8 +4,9 @@ WORKDIR /app
 FROM peterdavehello/azcopy:10.11.0 AS azcopy
 
 FROM base AS prerelease
-RUN apk add --no-cache certbot
+RUN apk add --no-cache certbot bash
 COPY --from=azcopy /usr/local/bin/azcopy /usr/bin/azcopy
+SHELL ["/bin/bash", "-c"]
 
 FROM prerelease AS release
 COPY index.ts package.json bun.lock ./

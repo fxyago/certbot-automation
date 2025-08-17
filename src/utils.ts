@@ -23,8 +23,11 @@ export const createDir = async (dir: string) => {
 export const copyCertsFromLetsEncryptLive = async () => {
   await createDir(AZURE_BLOB_CERT_DIRECTORY);
   log.trace(`Copiando certificados de Let's Encrypt para a pasta local Azure`);
+  log.trace(
+    `/bin/bash -c "shopt -s globstar && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_CERT_DIRECTORY}`
+  );
   const output =
-    await $`cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_CERT_DIRECTORY}`.cwd(
+    await $`/bin/bash -c "shopt -s globstar && cp -RL --parents ./**/{fullchain,privkey}.pem ${AZURE_BLOB_CERT_DIRECTORY}"`.cwd(
       "/etc/letsencrypt/live"
     );
 
