@@ -52,18 +52,18 @@ export const createConfFile = async ({
   log.trace(`Substituindo dóminio em \`server_name\` para: "${domain}"`);
   confText = confText.replaceAll("%SERVER_NAME%", domain);
   log.trace(
-    `Substituindo caminho do certificado para: "../certificates/${name}/fullchain.pem"`
+    `Substituindo caminho do certificado para: "/etc/nginx/certificates/${name}/fullchain.pem"`
   );
   confText = confText.replaceAll(
     "%CERTIFICATE_PATH%",
-    `../certificates/${name}/fullchain.pem`
+    `/etc/nginx/certificates/${name}/fullchain.pem`
   );
   log.trace(
-    `Substituindo caminho da chave do certificado para: "../certificates/${name}/privkey.pem"`
+    `Substituindo caminho da chave do certificado para: "/etc/nginx/certificates/${name}/privkey.pem"`
   );
   confText = confText.replaceAll(
     "%CERTIFICATE_KEY_PATH%",
-    `../certificates/${name}/privkey.pem`
+    `/etc/nginx/certificates/${name}/privkey.pem`
   );
 
   const confFilePath = `${AZURE_BLOB_CONF_DIRECTORY}/${name}.conf`;

@@ -19,6 +19,6 @@ export const NGINX_TEMPLATE = `server {
   client_max_body_size 60M;
   proxy_read_timeout 600s;
 
-  include ../templates/headers.conf;
-  include ../templates/locations.conf;
+  include /etc/nginx/templates/headers.conf;
+  include /etc/nginx/templates/locations.conf;
 }`;
